@@ -36,7 +36,7 @@ red_df <- df[,-c(2,23,24)]
 # than what comes in from the orignal file.
 
 red_df <- red_df %>%
-  rename(Participant = ?..Unique.Response.Number,
+  rename(Participant = ï..Unique.Response.Number,
          Gender = X71..What.is.your.gender.,
          BDI = BDI..0.9.16.29.63.,
          FMI = FMI..14.56.,
@@ -103,35 +103,35 @@ IAG_df <- subset(V_red_df,Knit_alone == "in a group")
 # Density plot for the female knitters BDI scores
 ggplot(Female_df, aes(x = BDI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the Female BDI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot for the female knitters BDI scores
 ggplot(Female_df, aes(x = FMI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the Female FMI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot for the female knitters PSS scores
 ggplot(Female_df, aes(x = PSS)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the PSS Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot for the female knitters FMI scores
 ggplot(Female_df, aes(x = FMI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the Female FMI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot for the female knitters STAI scores
 ggplot(Female_df, aes(x = STAI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the Female STAI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
@@ -140,28 +140,28 @@ ggplot(Female_df, aes(x = STAI)) +
 # Density plot for the male knitters BDI scores
 ggplot(Male_df, aes(x = BDI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the Male BDI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot for the male knitters PSS scores
 ggplot(Male_df, aes(x = PSS)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa(base_size = 14)+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the Male PSS Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot for the male knitters FMI scores
 ggplot(Male_df, aes(x = FMI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the Male FMI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot for the male knitters STAI scores
 ggplot(Male_df, aes(x = STAI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the Male STAI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
@@ -170,7 +170,7 @@ ggplot(Male_df, aes(x = STAI)) +
 #    geom_histogram(aes(y= ..density..), binwidth = 1)+
 #   geom_density(alpha=.2, fill="#FF6666")+
 #   scale_y_continuous(expand = c(0,0))+scale_x_continuous(expand = c(0,0))+
-#   theme_apa()
+#   
 
 # Plots for in a group knitters----
 
@@ -180,28 +180,28 @@ ggplot(Male_df, aes(x = STAI)) +
 
 ggplot(IAG_df, aes(x = BDI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting in a group BDI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot for IAG knitters PSS scores
 ggplot(IAG_df, aes(x = PSS)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting in a group PSS Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 #Density plot for IAG knitters FMI scores
 ggplot(IAG_df, aes(x = FMI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting in a group FMI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 #Density plot for IAG knitters STAI scores
 ggplot(IAG_df, aes(x = STAI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting in a group STAI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
@@ -213,14 +213,14 @@ ggplot(IAG_df, aes(x = STAI)) +
 # Density plot for both knitter subset BDI scores
 ggplot(both_df, aes(x = BDI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting both in a group and alone BDI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot for both knitter subset PSS scores
 ggplot(both_df, aes(x = PSS)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting both in a group and alone PSS Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
@@ -228,14 +228,14 @@ ggplot(both_df, aes(x = PSS)) +
 # Density plot for both knitter subset FMI scores
 ggplot(both_df, aes(x = FMI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting both in a group and alone FMI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot for both knitter subset STAI scores
 ggplot(both_df, aes(x = STAI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting both in a group and alone STAI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
@@ -247,28 +247,28 @@ ggplot(both_df, aes(x = STAI)) +
 # Density plot of the alone knitters BDI scores
 ggplot(alone_df, aes(x = BDI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting alone BDI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot of the alone knitters PSS scores
 ggplot(alone_df, aes(x = PSS)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting alone PSS Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot of the alone knitters FMI scores
 ggplot(alone_df, aes(x = FMI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting alone FMI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
 
 # Density plot of the alone knitters STAI scores
 ggplot(alone_df, aes(x = STAI)) + 
   geom_histogram(aes(y=..density..), binwidth = 1, colour="black", fill="white")+
-  theme_apa()+geom_density(alpha=.2, fill="#FF6666")+
+  geom_density(alpha=.2, fill="#FF6666")+
   ggtitle("Histogram of the knitting alone STAI Scores")+scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
  
