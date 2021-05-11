@@ -17,7 +17,7 @@ library(papaja)
 
 # Set working directory to call data into R environment
 # Change this however relevant Paul
-setwd("~/Etienne project")
+setwd("E:/R stuff/knitting")
 
 # Import data set of 7000+ participants into data frame.
 df <- read.csv(file = "Kntiing7000dat1.csv", header = TRUE)
@@ -36,7 +36,7 @@ red_df <- df[,-c(2,23,24)]
 # than what comes in from the orignal file.
 
 red_df <- red_df %>%
-  rename(Participant = ï..Unique.Response.Number,
+  rename(Participant = ?..Unique.Response.Number,
          Gender = X71..What.is.your.gender.,
          BDI = BDI..0.9.16.29.63.,
          FMI = FMI..14.56.,
