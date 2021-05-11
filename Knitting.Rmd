@@ -1,0 +1,122 @@
+---
+title: "Knitting"
+author: "Paul V"
+date: "11/05/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries and working directory
+```{r, results='hide', warning=FALSE, message = FALSE}
+
+library(psych)
+library(ggridges)
+library(kableExtra)
+library(mgsub)
+library(vroom)
+library(stringr)
+library(ggeasy)
+library(gridExtra)
+library(tidyverse)
+
+#Set working directory
+setwd("E:/R stuff/knitting") #for home PC
+#setwd("/home/vanagpau/R/Moralisation") #for laptop
+
+```
+
+
+## Data import and wrangling
+```{r, warning=FALSE, message = FALSE}
+
+# Import data set of 7000+ participants into data frame.
+df <- read_csv(file = "Kntiing7000dat1.csv")
+
+# Removal of unnecessary columns
+df <- df[,-c(2,23,24)]
+
+# Changing column names
+df <- df %>%  rename(Participant = "Unique Response Number",
+         Gender = "71. What is your gender?",
+         BDI = "BDI (0-9-16-29-63)",
+         FMI = "FMI (14-56)",
+         PSS = "PSS (0-13-26-40)",
+         STAI = "STAI (20-80)",
+         #country of birth
+         Cofbirth = "72. In which country were you born?" ,
+         #Current country
+         Ccountry = "73. In which country do you currently live? Which region?",
+         #Date of Birth
+         DOB = "74. What is the year of your birth?"  ,
+         #frequency of kniiting
+         Freq_knit = "76. About knitting..." ,
+         #length of knitting sessions
+         Session_L_Knit = "77. How long does a typical knitting session last?"   ,
+         #when learn to knit
+         learn_knit = "78. When did you learn to knit?" ,
+         how_long_knit = "79. How long have you been knitting regularly?" ,
+         CrochetQ = "80. About crochet..." ,
+         Session_L_Croch = "81. How long does a typical crochet session last?" ,
+         Age_beg_Croch = "82. At what age did you learn to crochet?",
+         #How long for regular crocheting
+         HL_ofReg_C = "83. How long have you been crocheting regularly?",
+         Feeling_when_KC = "84. What is your general experience when you knit/crochet? How do you feel?" ,
+         Purpose_of_KC = "85. For what purpose do you knit/crochet?"  ,
+         Med_Condtions = "86. Do you have a diagnosed condition? If so, would you mind telling us what?" ,
+         #does the participant knit alone
+         Knit_alone = "87. Do you knit/crochet...")
+
+# Changing BDI scores to numeric 
+df$BDI <- as.numeric(df$BDI)
+
+# Change all relevant variables to factor variables
+factor_cols <- c("Gender", "Knit_alone")
+df[factor_cols] <- lapply(df[factor_cols], factor)
+
+
+
+```
+
+## Data visualisation
+```{r}
+
+# create vector of continuous variables
+cont_var <- c("BDI", "FMI", "PSS", "STAI")
+
+# create vector of discrete variables
+disc_var <- c("Freq_knit", "Session_L_Knit", "how_long_knit", "CrotchetQ", "Session_L_Croch")
+
+# Order pre/post factors for graphing
+df$Freq_knit <- ordered(df$Freq_knit, levels = c("I do NOT knit.", "I knit once a month." , 
+                                                "I knit once a week.", "I knit several times a week.",
+                                                "I knit once a day.", "I knit several times a day." ))
+
+#create boxplot function for knitting frequency as IV
+
+freq_box_fn = function(var) {
+              ggplot(df, aes(x=Freq_knit, y=.data[[var]], fill=Freq_knit)) + geom_boxplot() +  theme(legend.position = "bottom", legend.title = element_blank()) + easy_labs(y = df[,var]) +
+  stat_summary(fun = "mean", geom = "point", shape = 23, size = 3, fill = "red") +
+    theme(axis.text.x = element_blank(), axis.title.x = element_blank())}
+
+#make boxplots
+# do.call(grid.arrange, lapply(cont_var, box_fn))
+lapply(cont_var, freq_box_fn)
+
+
+
+#create boxplot function 
+freq_box_fn = function(var1, var2) {
+              ggplot(df, aes(x=.data[[var1]], y=.data[[var2]], fill=.data[[var1]])) + geom_boxplot() +  theme(legend.position = "bottom", legend.title = element_blank()) + easy_labs(y = df[,var]) +
+  stat_summary(fun = "mean", geom = "point", shape = 23, size = 3, fill = "red") +
+    theme(axis.text.x = element_blank(), axis.title.x = element_blank())}
+
+#make boxplots
+
+lapply(c(cont_var, box_fn)
+
+
+
+```
