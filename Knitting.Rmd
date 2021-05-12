@@ -87,7 +87,7 @@ df[factor_cols] <- lapply(df[factor_cols], factor)
 cont_var <- c("BDI", "FMI", "PSS", "STAI")
 
 # create vector of discrete variables
-disc_var <- c("Freq_knit", "Session_L_Knit", "how_long_knit", "CrotchetQ", "Session_L_Croch")
+disc_var <- c("Freq_knit", "Session_L_Knit", "how_long_knit", "CrochetQ", "Session_L_Croch")
 
 # Order pre/post factors for graphing
 df$Freq_knit <- ordered(df$Freq_knit, levels = c("I do NOT knit.", "I knit once a month." , 
@@ -96,27 +96,30 @@ df$Freq_knit <- ordered(df$Freq_knit, levels = c("I do NOT knit.", "I knit once 
 
 #create boxplot function for knitting frequency as IV
 
-freq_box_fn = function(var) {
+# freq_box_fn = function(var) {
               ggplot(df, aes(x=Freq_knit, y=.data[[var]], fill=Freq_knit)) + geom_boxplot() +  theme(legend.position = "bottom", legend.title = element_blank()) + easy_labs(y = df[,var]) +
   stat_summary(fun = "mean", geom = "point", shape = 23, size = 3, fill = "red") +
     theme(axis.text.x = element_blank(), axis.title.x = element_blank())}
 
-#make boxplots
+# make boxplots
 # do.call(grid.arrange, lapply(cont_var, box_fn))
-lapply(cont_var, freq_box_fn)
+# lapply(cont_var, freq_box_fn)
 
 
 
-#create boxplot function 
-freq_box_fn = function(var1, var2) {
-              ggplot(df, aes(x=.data[[var1]], y=.data[[var2]], fill=.data[[var1]])) + geom_boxplot() +  theme(legend.position = "bottom", legend.title = element_blank()) + easy_labs(y = df[,var]) +
+#create boxplot function for both variables
+box_fn = function(var1, var2) {
+              ggplot(df, aes(x=.data[[var1]], y=.data[[var2]], fill=.data[[var1]])) + geom_boxplot() +  theme(legend.position = "bottom", legend.title = element_blank()) + easy_labs(y = df[,var2]) +
   stat_summary(fun = "mean", geom = "point", shape = 23, size = 3, fill = "red") +
-    theme(axis.text.x = element_blank(), axis.title.x = element_blank())}
+    theme(axis.text.x = element_blank())}
 
 #make boxplots
+# lapply(disc_var,box_fn, var2 = "BDI")
 
-lapply(c(cont_var, box_fn)
-
+for (i in 1:length(cont_var)) {
+p <- lapply(disc_var,box_fn, var2 = cont_var[i])
+print(p)
+}
 
 
 ```
