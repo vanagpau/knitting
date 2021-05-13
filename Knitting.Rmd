@@ -93,17 +93,11 @@ disc_var <- c("Freq_knit", "Session_L_Knit", "how_long_knit", "CrochetQ", "Sessi
 df$Freq_knit <- ordered(df$Freq_knit, levels = c("I do NOT knit.", "I knit once a month." , 
                                                 "I knit once a week.", "I knit several times a week.",
                                                 "I knit once a day.", "I knit several times a day." ))
-
-#create boxplot function for knitting frequency as IV
-
-# freq_box_fn = function(var) {
-              ggplot(df, aes(x=Freq_knit, y=.data[[var]], fill=Freq_knit)) + geom_boxplot() +  theme(legend.position = "bottom", legend.title = element_blank()) + easy_labs(y = df[,var]) +
-  stat_summary(fun = "mean", geom = "point", shape = 23, size = 3, fill = "red") +
-    theme(axis.text.x = element_blank(), axis.title.x = element_blank())}
-
-# make boxplots
-# do.call(grid.arrange, lapply(cont_var, box_fn))
-# lapply(cont_var, freq_box_fn)
+df$Session_L_Knit <- ordered(df$Session_L_Knit, levels = c("Not applicable.", "15 minutes.", "30 minutes."  , "1 hour." , "2 hours." ,"3 hours or more."))
+df$Session_L_Croch <- ordered(df$Session_L_Croch, levels = c("Not applicable.", "15 minutes.", "30 minutes."  , "1 hour." , "2 hours." ,"3 hours or more."))
+df$how_long_knit <- ordered(df$how_long_knit, levels = c("Not applicable.", "6 months.", "Between 6 and 12 months."  , "About 2 years."     , "More than 3 years."  ))
+df$CrochetQ <- ordered(df$CrochetQ, levels = c("I do NOT crochet." , "I crochet several times a day." , "I crochet once a day."  , "I crochet several times a week." , "I crochet once a week."  , 
+                                               "I crochet once a month."))
 
 
 
