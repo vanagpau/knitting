@@ -21,6 +21,8 @@ library(stringr)
 library(ggeasy)
 library(gridExtra)
 library(brms)
+library(lme4)
+library(sjPlot)
 library(tidyverse)
 
 #Set working directory
@@ -119,7 +121,20 @@ print(p)
 
 ```
 
-# Modelling
+# Standard modelling
+```{r, eval = FALSE}
+
+model_LM1 <- lm(BDI ~ Freq_knit, data=df)
+summary(model_LM1)
+plot_model(model_LM1)
+
+model_ME1 <- lmer(BDI ~ Freq_knit + Session_L_Knit + (1|Freq_knit), data=df)
+summary(model_ME1)
+plot_model(model_ME1)
+
+```
+
+# Bayesian Modelling
 ```{r, eval = FALSE}
 
 # convert BDI to positive integer scale by adding +1 to all scores
@@ -129,5 +144,17 @@ df$BDI <- df$BDI+1
 # saveRDS(m1, "m1.rds")
 
 m2 <- brm(formula = Freq_knit ~ 1 + (1|BDI), data = df, family = (cumulative("probit")), file = "m2")
+summary (m2)
+
+m3 <- brm(formula = Freq_knit ~ 1 + (1|BDI) + (1|FMI), data = df, family = (cumulative("probit")), file = "m3")
+summary(m3)
+
+loo(m2, m3)
+
+conditional_effects(m2, "Freq_knit", categorical = TRUE)
+
+m4 <- brm(formula = Freq_knit ~ 1 + (1|Participant) + BDI, data = df, family = (cumulative("probit")), file = "m4")
+summary(m4)
+loo(m2, m3, m4)
           
 ```
