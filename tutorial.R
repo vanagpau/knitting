@@ -9,6 +9,8 @@
 library(brms)
 library(readr)
 stemcell <- read_csv("stemcell.csv")
+
+#fit model
 fit_sc1 <- brm(formula = rating ~ 1 + belief, data = stemcell, family = (cumulative("probit")))
 
 
