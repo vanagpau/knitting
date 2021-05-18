@@ -20,6 +20,7 @@ library(vroom)
 library(stringr)
 library(ggeasy)
 library(gridExtra)
+library(brms)
 library(tidyverse)
 
 #Set working directory
@@ -124,11 +125,9 @@ print(p)
 # convert BDI to positive integer scale by adding +1 to all scores
 df$BDI <- df$BDI+1
 
+# m1 <- brm(formula = BDI ~ 1 + (1|Freq_knit), data = df, family = (cumulative()))
+# saveRDS(m1, "m1.rds")
 
-
-m1 <- brm(formula = BDI ~ 1 + (1|Freq_knit), data = df, family = (cumulative()))
-saveRDS(m1, "m1.rds")
-
-
+m2 <- brm(formula = Freq_knit ~ 1 + (1|BDI), data = df, family = (cumulative("probit")), file = "m2")
           
 ```
