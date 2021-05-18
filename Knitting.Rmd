@@ -23,8 +23,8 @@ library(gridExtra)
 library(tidyverse)
 
 #Set working directory
-setwd("E:/R stuff/knitting") #for home PC
-#setwd("/home/vanagpau/R/Moralisation") #for laptop
+#setwd("E:/R stuff/knitting") #for home PC
+setwd("/home/vanagpau/R/knitting") #for laptop
 
 ```
 
