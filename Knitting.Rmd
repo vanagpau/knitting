@@ -124,9 +124,19 @@ print(p)
 # Standard modelling
 ```{r, eval = FALSE}
 
-model_LM1 <- lm(BDI ~ Freq_knit, data=df)
+df[disc_var] <- factor(df[disc_var] , ordered = FALSE )
+df$Freq_knit <- factor(df$Freq_knit, ordered = FALSE)
+
+model_LM1 <- lm(BDI ~ 1 + Freq_knit, data=df)
 summary(model_LM1)
 plot_model(model_LM1)
+
+
+
+lambda <- c(1000,500,200,100,50,30,20,10,1,0)
+model_LM2 <- ordSmooth(x = as.numeric(df$Freq_knit), y = df$BDI, lambda = lambda)
+model_LM2
+
 
 model_ME1 <- lmer(BDI ~ Freq_knit + Session_L_Knit + (1|Freq_knit), data=df)
 summary(model_ME1)
