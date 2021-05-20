@@ -79,18 +79,11 @@ df$BDI <- as.numeric(df$BDI)
 factor_cols <- c("Gender", "Knit_alone")
 df[factor_cols] <- lapply(df[factor_cols], factor)
 
-
-
-```
-
-## Data visualisation
-```{r}
-
 # create vector of continuous variables
 cont_var <- c("BDI", "FMI", "PSS", "STAI")
 
 # create vector of discrete variables
-disc_var <- c("Freq_knit", "Session_L_Knit", "how_long_knit", "CrochetQ", "Session_L_Croch")
+disc_var <- c("Freq_knit", "Session_L_Knit", "how_long_knit", "CrochetQ", "Session_L_Croch", "Knit_alone")
 
 # Order pre/post factors for graphing
 df$Freq_knit <- ordered(df$Freq_knit, levels = c("I do NOT knit.", "I knit once a month." , 
@@ -102,7 +95,19 @@ df$how_long_knit <- ordered(df$how_long_knit, levels = c("Not applicable.", "6 m
 df$CrochetQ <- ordered(df$CrochetQ, levels = c("I do NOT crochet." , "I crochet several times a day." , "I crochet once a day."  , "I crochet several times a week." , "I crochet once a week."  , 
                                                "I crochet once a month."))
 
+# remove any rows containing NA in key variables
+df <- df[complete.cases(df[disc_var], df[cont_var]), ]
 
+```
+
+## Data visualisation
+```{r, eval = FALSE}
+
+
+# create mosaic plot to show overlap between knitters and crotcheters
+ct <- xtabs(~Freq_knit + CrochetQ, df)
+vcd::mosaic(ct, shade = TRUE, legend = TRUE,
+            rot_labels = c(45, 45))
 
 #create boxplot function for both variables
 box_fn = function(var1, var2) {
@@ -118,31 +123,139 @@ p <- lapply(disc_var,box_fn, var2 = cont_var[i])
 print(p)
 }
 
+# Note that all well-being metrics are strongly correlated
+c <- cor(select(df, BDI, FMI, STAI, PSS), use = "complete.obs")
+corrplot::corrplot(c, diag = FALSE, type = "lower", method = "pie")
 
 ```
 
 # Standard modelling
 ```{r, eval = FALSE}
 
-df[disc_var] <- factor(df[disc_var] , ordered = FALSE )
-df$Freq_knit <- factor(df$Freq_knit, ordered = FALSE)
+# remove factor ordering (otherwise lm function models polynomials)
+df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
 
-model_LM1 <- lm(BDI ~ 1 + Freq_knit, data=df)
-summary(model_LM1)
-plot_model(model_LM1)
+# fit linear models
+# Key: L = linear model, M = mixed model, O = ordinal model
+# dependent variable; B=BDI, P=PSS, S=STAI, F=FMI
+# e.g. OB2 = ordinal model, BDI as DV, 2nd model in series
+
+# BDI
+model_LB1 <- lm(BDI ~ 1 + Freq_knit, data=df)
+summary(model_LB1)
+plot_model(model_LB1)
+
+model_LB2 <- lm(BDI ~ 1 + Freq_knit + Session_L_Knit, data = df)
+summary(model_LB2)
+plot_model(model_LB2)
+
+model_LB3 <- lm(BDI ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = df)
+summary(model_LB3)
+plot_model(model_LB3)
+
+tab_model(model_LB1, model_LB2, model_LB3, file = "linearmodels.html")
+
+# PSS
+model_LP1 <- lm(PSS ~ 1 + Freq_knit, data=df)
+summary(model_LP1)
+plot_model(model_LP1)
+
+model_LP2 <- lm(PSS ~ 1 + Freq_knit + Session_L_Knit, data = df)
+summary(model_LP2)
+plot_model(model_LP2)
+
+model_LP3 <- lm(PSS ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = df)
+summary(model_LP3)
+plot_model(model_LP3)
+
+#FMI
+model_LF1 <- lm(FMI ~ 1 + Freq_knit, data=df)
+summary(model_LF1)
+plot_model(model_LF1)
+
+model_LF2 <- lm(FMI ~ 1 + Freq_knit + Session_L_Knit, data = df)
+summary(model_LF2)
+plot_model(model_LF2)
+
+model_LF3 <- lm(FMI ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = df)
+summary(model_LF3)
+plot_model(model_LF3)
+
+#STAI
+model_LS1 <- lm(STAI ~ 1 + Freq_knit, data=df)
+summary(model_LS1)
+plot_model(model_LS1)
+
+model_LS2 <- lm(STAI ~ 1 + Freq_knit + Session_L_Knit, data = df)
+summary(model_LS2)
+plot_model(model_LS2)
+
+model_LS3 <- lm(STAI ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = df)
+summary(model_LS3)
+plot_model(model_LS3)
+
+# Multi-variate DV model
+model_MA1 <- lm(cbind(BDI, FMI, STAI, PSS) ~ 1+ Freq_knit, data = df)
+summary(model_MA1)
+plot_model(model_MA1)
+
+
+# Mixed model
+model_MB1 <- lmer(BDI ~ Freq_knit + how_long_knit + Session_L_Knit + (1|Participant), data=df)
+summary(model_MB1)
+plot_model(model_MB1)
+
+tab_model(model_MB1, model_LB3, file = "mixedvlinear.html")
+tab_model(model_LB3, model_MB1)
 
 
 
-lambda <- c(1000,500,200,100,50,30,20,10,1,0)
-model_LM2 <- ordSmooth(x = as.numeric(df$Freq_knit), y = df$BDI, lambda = lambda)
-model_LM2
+# Canonical correlation analysis
+
+#convert factors to numeric
+df[disc_var] <- lapply(df[disc_var], as.numeric)
+
+# reverse FMI scoring
+# df <- df$FMI*-1
+
+# run CCA
+
+# convert variables into matrices
+dmat <- as.matrix(df[disc_var])
+cmat <- as.matrix(df[cont_var])
+
+# matrix of correlations
+matcor(cmat, dmat)
+
+# run canonical correlation analysis
+cca1 <- cc(dmat, cmat)
+cca1$cor
+summary(cca1)
+cca1$xcoef
+cca1$ycoef
+
+cc2 <- comput(dmat, cmat, cca1)
+cc2$corr.X.xscores
+cc2$corr.X.yscores
+cc2$corr.Y.yscores
+cc2$corr.Y.xscores
 
 
-model_ME1 <- lmer(BDI ~ Freq_knit + Session_L_Knit + (1|Freq_knit), data=df)
-summary(model_ME1)
-plot_model(model_ME1)
 
 ```
+
+# Ordinal modelling
+```{r, eval=FALSE}
+
+# note: need to restore factor levels for this - code at LINE 95
+
+# ordinal predictor model
+lambda <- c(1000,500,200,100,50,30,20,10,1,0)
+model_OFreq1 <- ordSmooth(x = as.numeric(df$Freq_knit) + as.numeric(df$Session_L_Knit), y = df$BDI, lambda = lambda)
+summary(model_OFreq1)
+
+```
+
 
 # Bayesian Modelling
 ```{r, eval = FALSE}
