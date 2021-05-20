@@ -208,20 +208,20 @@ plot_model(model_MB1)
 tab_model(model_MB1, model_LB3, file = "mixedvlinear.html")
 tab_model(model_LB3, model_MB1)
 
-
+```
 
 # Canonical correlation analysis
-
-#convert factors to numeric
-df[disc_var] <- lapply(df[disc_var], as.numeric)
+```{r, eval = FALSE}
+# select discrete variables to be analysed and convert factors to numeric
+dmat <- lapply(df[c("Freq_knit", "Session_L_Knit", "how_long_knit")], as.numeric)
 
 # reverse FMI scoring
 # df <- df$FMI*-1
 
 # run CCA
-
 # convert variables into matrices
-dmat <- as.matrix(df[disc_var])
+dmat <- matrix(unlist(dmat), ncol = 3)
+dimnames(dmat)[[2]] = c("Freq", "SessionL", "Time")
 cmat <- as.matrix(df[cont_var])
 
 # matrix of correlations
