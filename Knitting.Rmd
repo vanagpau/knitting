@@ -23,11 +23,13 @@ library(gridExtra)
 library(brms)
 library(lme4)
 library(sjPlot)
+library(CCA)
+library(kableExtra)
 library(tidyverse)
 
 #Set working directory
-#setwd("E:/R stuff/knitting") #for home PC
-setwd("/home/vanagpau/R/knitting") #for laptop
+setwd("E:/R stuff/knitting") #for home PC
+#setwd("/home/vanagpau/R/knitting") #for laptop
 
 ```
 
@@ -107,7 +109,8 @@ df <- df[complete.cases(df[disc_var], df[cont_var]), ]
 # create mosaic plot to show overlap between knitters and crotcheters
 ct <- xtabs(~Freq_knit + CrochetQ, df)
 vcd::mosaic(ct, shade = TRUE, legend = TRUE,
-            rot_labels = c(45, 45))
+            rot_labels = c(90, 0), varnames = FALSE, just_labels = "center",
+            tl_labels = c(TRUE, FALSE))
 
 #create boxplot function for both variables
 box_fn = function(var1, var2) {
@@ -195,18 +198,18 @@ summary(model_LS3)
 plot_model(model_LS3)
 
 # Multi-variate DV model
-model_MA1 <- lm(cbind(BDI, FMI, STAI, PSS) ~ 1+ Freq_knit, data = df)
+model_MA1 <- lm(cbind(BDI, FMI, STAI, PSS) ~ 1 + Freq_knit, data = df)
 summary(model_MA1)
-plot_model(model_MA1)
+
 
 
 # Mixed model
-model_MB1 <- lmer(BDI ~ Freq_knit + how_long_knit + Session_L_Knit + (1|Participant), data=df)
-summary(model_MB1)
-plot_model(model_MB1)
+#model_MB1 <- lmer(BDI ~ Freq_knit + how_long_knit + Session_L_Knit + (1|Participant), data=df)
+#summary(model_MB1)
+#plot_model(model_MB1)
 
-tab_model(model_MB1, model_LB3, file = "mixedvlinear.html")
-tab_model(model_LB3, model_MB1)
+#tab_model(model_MB1, model_LB3, file = "mixedvlinear.html")
+#tab_model(model_LB3, model_MB1)
 
 ```
 
@@ -215,9 +218,6 @@ tab_model(model_LB3, model_MB1)
 # select discrete variables to be analysed and convert factors to numeric
 dmat <- lapply(df[c("Freq_knit", "Session_L_Knit", "how_long_knit")], as.numeric)
 
-# reverse FMI scoring
-# df <- df$FMI*-1
-
 # run CCA
 # convert variables into matrices
 dmat <- matrix(unlist(dmat), ncol = 3)
@@ -225,22 +225,41 @@ dimnames(dmat)[[2]] = c("Freq", "SessionL", "Time")
 cmat <- as.matrix(df[cont_var])
 
 # matrix of correlations
-matcor(cmat, dmat)
+matcor(cmat, dmat) %>% kbl(digits = 2) 
 
 # run canonical correlation analysis
 cca1 <- cc(dmat, cmat)
-cca1$cor
-summary(cca1)
-cca1$xcoef
-cca1$ycoef
+cca1$cor %>% kbl(digits = 3) %>% htmlTable::htmlTable()
+ 
+cca1$xcoef %>% kbl(digits = 2) %>% htmlTable::htmlTable()
+cca1$ycoef %>% kbl(digits = 2) %>% htmlTable::htmlTable()
 
+# calculate canonical loadings (correlations between variables and latent canonical factors)
 cc2 <- comput(dmat, cmat, cca1)
-cc2$corr.X.xscores
-cc2$corr.X.yscores
-cc2$corr.Y.yscores
-cc2$corr.Y.xscores
+cc2$corr.X.xscores %>% kbl(digits = 2) %>% htmlTable::htmlTable()
+cc2$corr.X.yscores %>% kbl(digits = 2) %>% htmlTable::htmlTable()
+cc2$corr.Y.yscores %>% kbl(digits = 2) %>% htmlTable::htmlTable()
+cc2$corr.Y.xscores %>% kbl(digits = 2) %>% htmlTable::htmlTable()
 
+rbind(cc2$corr.X.xscores, cc2$corr.X.yscores, cc2$corr.Y.yscores, cc2$corr.Y.xscores ) %>% kbl(digits = 2) %>% htmlTable::htmlTable()
 
+# tests of canonical dimensions
+rho <- cca1$cor
+## Define number of observations, number of variables in first set, and number of variables in the second set.
+n <- dim(cmat)[1]
+p <- ncol(cmat)
+q <- ncol(dmat)
+
+## Calculate p-values using the F-approximations of different test statistics:
+CCP::p.asym(rho, n, p, q, tstat = "Wilks") %>% kbl(digits = 3) 
+
+# standardized well-being canonical coefficients diagonal matrix of well-being sd's
+s1 <- diag(sqrt(diag(cov(cmat))))
+s1 %*% cca1$ycoef %>% kbl(digits = 2)
+
+# standardized knitting canonical coefficients diagonal matrix of knitting sd's
+s2 <- diag(sqrt(diag(cov(dmat))))
+cca1$xcoef %*% s2 %>% kbl(digits = 2)
 
 ```
 
