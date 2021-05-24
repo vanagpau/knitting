@@ -24,7 +24,9 @@ library(brms)
 library(lme4)
 library(sjPlot)
 library(CCA)
+library(ordPens)
 library(kableExtra)
+library(MASS)
 library(tidyverse)
 
 #Set working directory
@@ -133,7 +135,7 @@ corrplot::corrplot(c, diag = FALSE, type = "lower", method = "pie")
 ```
 
 # Standard modelling
-```{r, eval = FALSE}
+```{r}
 
 # remove factor ordering (otherwise lm function models polynomials)
 df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
@@ -156,7 +158,7 @@ model_LB3 <- lm(BDI ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = df)
 summary(model_LB3)
 plot_model(model_LB3)
 
-tab_model(model_LB1, model_LB2, model_LB3, file = "linearmodels.html")
+tab_model(model_LB1, model_LB2, model_LB3, file = "models_BDI.html")
 
 # PSS
 model_LP1 <- lm(PSS ~ 1 + Freq_knit, data=df)
@@ -171,6 +173,8 @@ model_LP3 <- lm(PSS ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = df)
 summary(model_LP3)
 plot_model(model_LP3)
 
+tab_model(model_LP1, model_LP2, model_LP3)
+
 #FMI
 model_LF1 <- lm(FMI ~ 1 + Freq_knit, data=df)
 summary(model_LF1)
@@ -183,6 +187,8 @@ plot_model(model_LF2)
 model_LF3 <- lm(FMI ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = df)
 summary(model_LF3)
 plot_model(model_LF3)
+
+tab_model(model_LF1, model_LF2, model_LF3)
 
 #STAI
 model_LS1 <- lm(STAI ~ 1 + Freq_knit, data=df)
@@ -197,11 +203,15 @@ model_LS3 <- lm(STAI ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = df
 summary(model_LS3)
 plot_model(model_LS3)
 
+tab_model(model_LS1, model_LS2, model_LS3)
+
 # Multi-variate DV model
 model_MA1 <- lm(cbind(BDI, FMI, STAI, PSS) ~ 1 + Freq_knit, data = df)
 summary(model_MA1)
+model_MA2 <- lm(cbind(BDI, FMI, STAI, PSS) ~ 1 + Freq_knit + Session_L_Knit, data = df)
+summary(model_MA2)
 
-
+tab_model(model_LB3, model_LF3, model_LS3, model_LP3)
 
 # Mixed model
 #model_MB1 <- lmer(BDI ~ Freq_knit + how_long_knit + Session_L_Knit + (1|Participant), data=df)
@@ -266,12 +276,72 @@ cca1$xcoef %*% s2 %>% kbl(digits = 2)
 # Ordinal modelling
 ```{r, eval=FALSE}
 
-# note: need to restore factor levels for this - code at LINE 95
+# note: need to restore factor levels
+# Order pre/post factors 
+df$Freq_knit <- ordered(df$Freq_knit, levels = c("I do NOT knit.", "I knit once a month." , 
+                                                "I knit once a week.", "I knit several times a week.",
+                                                "I knit once a day.", "I knit several times a day." ))
+df$Session_L_Knit <- ordered(df$Session_L_Knit, levels = c("Not applicable.", "15 minutes.", "30 minutes."  , "1 hour." , "2 hours." ,"3 hours or more."))
+df$Session_L_Croch <- ordered(df$Session_L_Croch, levels = c("Not applicable.", "15 minutes.", "30 minutes."  , "1 hour." , "2 hours." ,"3 hours or more."))
+df$how_long_knit <- ordered(df$how_long_knit, levels = c("Not applicable.", "6 months.", "Between 6 and 12 months."  , "About 2 years."     , "More than 3 years."  ))
+df$CrochetQ <- ordered(df$CrochetQ, levels = c("I do NOT crochet." , "I crochet several times a day." , "I crochet once a day."  , "I crochet several times a week." , "I crochet once a week."  , 
+                                               "I crochet once a month."))
+
+
 
 # ordinal predictor model
 lambda <- c(1000,500,200,100,50,30,20,10,1,0)
-model_OFreq1 <- ordSmooth(x = as.numeric(df$Freq_knit) + as.numeric(df$Session_L_Knit), y = df$BDI, lambda = lambda)
-summary(model_OFreq1)
+model_OP1 <- ordSmooth(x = as.numeric(df$Freq_knit), y = df$BDI, lambda = lambda)
+model_OP1$coefficients
+
+model_OP2 <- ordSmooth(x = as.numeric(df$Freq_knit) + as.numeric(df$Session_L_Knit), y = df$BDI, lambda = lambda)
+model_OP2$coefficients
+
+
+
+# ordinal dependent variable model
+# Model 1: Knitting Frequency
+model_OD1 <- polr(Freq_knit ~ BDI + FMI + STAI + PSS, data = df, Hess=TRUE)
+summary(model_OD1)
+
+## calculate and store p values
+ctable <- coef(summary(model_OD1))
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+## combined table
+(ctable <- cbind(ctable, "p value" = p))
+
+## odds ratios and confidence intervals
+ci <- confint.default(model_OD1)
+exp(cbind("Odds ratio" = coef(model_OD1), ci))
+
+
+# Model 2: Session Length
+model_OD2 <- polr(Session_L_Knit ~ BDI + FMI + STAI + PSS, data = df, Hess=TRUE)
+summary(model_OD2)
+
+## calculate and store p values
+ctable <- coef(summary(model_OD2))
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+## combined table
+(ctable <- cbind(ctable, "p value" = p))
+
+## odds ratios and confidence intervals
+ci <- confint.default(model_OD2)
+exp(cbind("Odds ratio" = coef(model_OD2), ci))
+
+# Model 3: Length of time knitting
+model_OD3 <- polr(how_long_knit ~ BDI + FMI + STAI + PSS, data = df, Hess=TRUE)
+summary(model_OD3)
+
+## calculate and store p values
+ctable <- coef(summary(model_OD3))
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+## combined table
+(ctable <- cbind(ctable, "p value" = p))
+
+## odds ratios and confidence intervals
+ci <- confint.default(model_OD3)
+exp(cbind("Odds ratio" = coef(model_OD3), ci))
 
 ```
 
@@ -279,7 +349,11 @@ summary(model_OFreq1)
 # Bayesian Modelling
 ```{r, eval = FALSE}
 
-# convert BDI to positive integer scale by adding +1 to all scores
+# specify models first using lme4
+
+
+
+# convert BDI to positive integer scale by adding +1 to all scores (this is necessary to run models as the variable cannot contain 0's)
 df$BDI <- df$BDI+1
 
 # m1 <- brm(formula = BDI ~ 1 + (1|Freq_knit), data = df, family = (cumulative()))
