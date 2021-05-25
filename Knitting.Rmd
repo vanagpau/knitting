@@ -355,18 +355,22 @@ df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
 
 # Predict well-being from knitting variables
 
-#Model 1: Standard multi-variate knitting predictors of depression
+#Model 1: Multi-variate knitting predictors of depression
 m1 <- brm(formula = BDI ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m1.rds")
 summary(m1)
 
-#Model 2: Ordinate dependent variable model
-#Factors of variable need to be ordered
-df$Freq_knit <- ordered(df$Freq_knit, levels = c("I do NOT knit.", "I knit once a month." , 
-                                                "I knit once a week.", "I knit several times a week.",
-                                                "I knit once a day.", "I knit several times a day." ))
+#Model 2: Multi-variate knitting predictors of mindfulness
+m2 <- brm(formula = FMI ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m2.rds")
+summary(m2)
 
-m2 <- brm(formula = Freq_knit ~ BDI, data = df, family = (cumulative("probit")), file = "m2")
-summary (m2)
+
+#Model 3: Multi-variate knitting predictors of anxiety
+m3 <- brm(formula = STAI ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m3.rds")
+summary(m3)
+
+#Model 4: Multi-variate knitting predictors of stress
+m4 <- brm(formula = PSS ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m4.rds")
+summary(m4)
 
           
 ```
