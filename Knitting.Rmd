@@ -135,7 +135,7 @@ corrplot::corrplot(c, diag = FALSE, type = "lower", method = "pie")
 ```
 
 # Standard modelling
-```{r}
+```{r, eval=FALSE}
 
 # remove factor ordering (otherwise lm function models polynomials)
 df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
@@ -350,27 +350,23 @@ exp(cbind("Odds ratio" = coef(model_OD3), ci))
 # Bayesian Modelling
 ```{r, eval = FALSE}
 
-# convert BDI to positive integer scale by adding +1 to all scores (this is necessary to run models as the variable cannot contain 0's)
-df$BDI <- df$BDI+1
+# remove factor ordering (otherwise lm function models polynomials)
+df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
 
 # Predict well-being from knitting variables
 
-m1 <- brm(formula = BDI ~ 1 + , data = df, family = (cumulative()), file = "m1.rds")
+#Model 1: Standard multi-variate knitting predictors of depression
+m1 <- brm(formula = BDI ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m1.rds")
+summary(m1)
 
+#Model 2: Ordinate dependent variable model
+#Factors of variable need to be ordered
+df$Freq_knit <- ordered(df$Freq_knit, levels = c("I do NOT knit.", "I knit once a month." , 
+                                                "I knit once a week.", "I knit several times a week.",
+                                                "I knit once a day.", "I knit several times a day." ))
 
-
-m2 <- brm(formula = Freq_knit ~ 1 + (1|BDI), data = df, family = (cumulative("probit")), file = "m2")
+m2 <- brm(formula = Freq_knit ~ BDI, data = df, family = (cumulative("probit")), file = "m2")
 summary (m2)
 
-m3 <- brm(formula = Freq_knit ~ 1 + (1|BDI) + (1|FMI), data = df, family = (cumulative("probit")), file = "m3")
-summary(m3)
-
-loo(m2, m3)
-
-conditional_effects(m2, "Freq_knit", categorical = TRUE)
-
-m4 <- brm(formula = Freq_knit ~ 1 + (1|Participant) + BDI, data = df, family = (cumulative("probit")), file = "m4")
-summary(m4)
-loo(m2, m3, m4)
           
 ```
