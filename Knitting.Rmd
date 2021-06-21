@@ -33,6 +33,8 @@ library(tidyverse)
 setwd("E:/R stuff/knitting") #for home PC
 #setwd("/home/vanagpau/R/knitting") #for laptop
 
+
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ```
 
 
@@ -102,10 +104,18 @@ df$CrochetQ <- ordered(df$CrochetQ, levels = c("I do NOT crochet." , "I crochet 
 # remove any rows containing NA in key variables
 df <- df[complete.cases(df[disc_var], df[cont_var]), ]
 
+#standardise continuous scale variables
+df$BDI <- scale(df$BDI)
+df$PSS <- scale(df$PSS)
+df$STAI <- scale(df$STAI)
+df$FMI <- scale(df$FMI)
+
+
+
 ```
 
 ## Data visualisation
-```{r, eval = FALSE}
+```{r, eval = FALSE, include = FALSE}
 
 
 # create mosaic plot to show overlap between knitters and crotcheters
@@ -134,8 +144,8 @@ corrplot::corrplot(c, diag = FALSE, type = "lower", method = "pie")
 
 ```
 
-# Standard modelling
-```{r, eval=FALSE}
+# Frequentist modelling
+```{r, eval = FALSE, include=FALSE}
 
 # remove factor ordering (otherwise lm function models polynomials)
 df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
@@ -213,18 +223,157 @@ summary(model_MA2)
 
 tab_model(model_LB3, model_LF3, model_LS3, model_LP3)
 
-# Mixed model
-#model_MB1 <- lmer(BDI ~ Freq_knit + how_long_knit + Session_L_Knit + (1|Participant), data=df)
-#summary(model_MB1)
-#plot_model(model_MB1)
 
-#tab_model(model_MB1, model_LB3, file = "mixedvlinear.html")
-#tab_model(model_LB3, model_MB1)
+```
+
+# Frequentist modelling - knitters only
+```{r}
+
+# remove factor ordering (otherwise lm function models polynomials)
+df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
+
+# fit linear models
+# Key: L = linear model, M = mixed model, O = ordinal model
+# dependent variable; B=BDI, P=PSS, S=STAI, F=FMI
+# e.g. OB2 = ordinal model, BDI as DV, 2nd model in series
+
+# BDI
+model_LB1 <- lm(BDI ~ 1 + Freq_knit, data=(df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LB1)
+plot_model(model_LB1)
+
+model_LB2 <- lm(BDI ~ 1 + Freq_knit + Session_L_Knit, data = (df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LB2)
+plot_model(model_LB2)
+
+model_LB3 <- lm(BDI ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = (df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LB3)
+plot_model(model_LB3)
+
+tab_model(model_LB1, model_LB2, model_LB3, file = "models_BDI.html")
+
+# PSS
+model_LP1 <- lm(PSS ~ 1 + Freq_knit, data=(df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LP1)
+plot_model(model_LP1)
+
+model_LP2 <- lm(PSS ~ 1 + Freq_knit + Session_L_Knit, data = (df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LP2)
+plot_model(model_LP2)
+
+model_LP3 <- lm(PSS ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = (df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LP3)
+plot_model(model_LP3)
+
+tab_model(model_LP1, model_LP2, model_LP3)
+
+#FMI
+model_LF1 <- lm(FMI ~ 1 + Freq_knit, data=(df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LF1)
+plot_model(model_LF1)
+
+model_LF2 <- lm(FMI ~ 1 + Freq_knit + Session_L_Knit, data = (df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LF2)
+plot_model(model_LF2)
+
+model_LF3 <- lm(FMI ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = (df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LF3)
+plot_model(model_LF3)
+
+tab_model(model_LF1, model_LF2, model_LF3)
+
+#STAI
+model_LS1 <- lm(STAI ~ 1 + Freq_knit, data=(df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LS1)
+plot_model(model_LS1)
+
+model_LS2 <- lm(STAI ~ 1 + Freq_knit + Session_L_Knit, data = (df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LS2)
+plot_model(model_LS2)
+
+model_LS3 <- lm(STAI ~ 1 + Freq_knit + Session_L_Knit + how_long_knit, data = (df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_LS3)
+plot_model(model_LS3)
+
+tab_model(model_LS1, model_LS2, model_LS3)
+
+# Multi-variate DV model
+model_MA1 <- lm(cbind(BDI, FMI, STAI, PSS) ~ 1 + Freq_knit, data = (df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_MA1)
+model_MA2 <- lm(cbind(BDI, FMI, STAI, PSS) ~ 1 + Freq_knit + Session_L_Knit, data = (df %>% filter(Freq_knit != "I do NOT knit." & CrochetQ == "I do NOT crochet.")))
+summary(model_MA2)
+
+tab_model(model_LB3, model_LF3, model_LS3, model_LP3)
+
+```
+
+# Frequentist modelling - crotcheters only
+```{r}
+
+# remove factor ordering (otherwise lm function models polynomials)
+df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
+
+# fit linear models
+# Key: L = linear model, M = mixed model, O = ordinal model
+# dependent variable; B=BDI, P=PSS, S=STAI, F=FMI
+# e.g. OB2 = ordinal model, BDI as DV, 2nd model in series
+
+# BDI
+model_LB1 <- lm(BDI ~ 1 + CrochetQ, data=(df %>% filter(CrochetQ != "I do NOT crochet.")))
+summary(model_LB1)
+plot_model(model_LB1)
+
+model_LB2 <- lm(BDI ~ 1 + CrochetQ + Session_L_Croch, data = (df %>% filter(CrochetQ != "I do NOT crochet.")))
+summary(model_LB2)
+plot_model(model_LB2)
+
+tab_model(model_LB1, model_LB2)
+
+# PSS
+model_LP1 <- lm(PSS ~ 1 + CrochetQ, data=(df %>% filter(CrochetQ != "I do NOT crochet.")))
+summary(model_LP1)
+plot_model(model_LP1)
+
+model_LP2 <- lm(PSS ~ 1 + CrochetQ + Session_L_Croch, data = (df %>% filter(CrochetQ != "I do NOT crochet.")))
+summary(model_LP2)
+plot_model(model_LP2)
+
+tab_model(model_LP1, model_LP2)
+
+#FMI
+model_LF1 <- lm(FMI ~ 1 + CrochetQ, data=(df %>% filter(CrochetQ != "I do NOT crochet.")))
+summary(model_LF1)
+plot_model(model_LF1)
+
+model_LF2 <- lm(FMI ~ 1 + CrochetQ + Session_L_Croch, data = (df %>% filter(CrochetQ != "I do NOT crochet.")))
+summary(model_LF2)
+plot_model(model_LF2)
+
+tab_model(model_LF1, model_LF2)
+
+#STAI
+model_LS1 <- lm(STAI ~ 1 + CrochetQ, data=(df %>% filter(CrochetQ != "I do NOT crochet.")))
+summary(model_LS1)
+plot_model(model_LS1)
+
+model_LS2 <- lm(STAI ~ 1 + CrochetQ + Session_L_Croch, data = (df %>% filter(CrochetQ != "I do NOT crochet.")))
+summary(model_LS2)
+plot_model(model_LS2)
+
+tab_model(model_LS1, model_LS2)
+
+# Multi-variate DV model
+model_MA1 <- lm(cbind(BDI, FMI, STAI, PSS) ~ 1 + CrochetQ, data = (df %>% filter(CrochetQ != "I do NOT crochet.")))
+summary(model_MA1)
+model_MA2 <- lm(cbind(BDI, FMI, STAI, PSS) ~ 1 + CrochetQ + Session_L_Croch, data = (df %>% filter(CrochetQ != "I do NOT crochet.")))
+summary(model_MA2)
+
+tab_model(model_LB3, model_LF3, model_LS3, model_LP3)
 
 ```
 
 # Canonical correlation analysis
-```{r, eval = FALSE}
+```{r, eval=FALSE, include=FALSE}
 # select discrete variables to be analysed and convert factors to numeric
 dmat <- lapply(df[c("Freq_knit", "Session_L_Knit", "how_long_knit")], as.numeric)
 
@@ -274,7 +423,7 @@ cca1$xcoef %*% s2 %>% kbl(digits = 2)
 ```
 
 # Ordinal modelling
-```{r, eval=FALSE}
+```{r, eval=FALSE, include=FALSE}
 
 # note: need to restore factor levels
 # Order pre/post factors 
@@ -348,7 +497,7 @@ exp(cbind("Odds ratio" = coef(model_OD3), ci))
 
 
 # Bayesian Modelling
-```{r, eval = FALSE}
+```{r, eval=FALSE, include=FALSE}
 
 # remove factor ordering (otherwise lm function models polynomials)
 df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
@@ -358,19 +507,23 @@ df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
 #Model 1: Multi-variate knitting predictors of depression
 m1 <- brm(formula = BDI ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m1.rds")
 summary(m1)
+tab_model(m1, file = "m1.html")
+
 
 #Model 2: Multi-variate knitting predictors of mindfulness
 m2 <- brm(formula = FMI ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m2.rds")
 summary(m2)
-
+tab_model(m2, file = "m2.html")
 
 #Model 3: Multi-variate knitting predictors of anxiety
 m3 <- brm(formula = STAI ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m3.rds")
 summary(m3)
+tab_model(m3, file = "m3.html")
 
 #Model 4: Multi-variate knitting predictors of stress
 m4 <- brm(formula = PSS ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m4.rds")
 summary(m4)
+tab_model(m4, file = "m4.html")
 
           
 ```
