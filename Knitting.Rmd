@@ -27,6 +27,7 @@ library(CCA)
 library(ordPens)
 library(kableExtra)
 library(MASS)
+library(bayesplot)
 library(tidyverse)
 
 #Set working directory
@@ -496,19 +497,27 @@ exp(cbind("Odds ratio" = coef(model_OD3), ci))
 ```
 
 
-# Bayesian Modelling
+# Bayesian Modelling: knitters only
 ```{r, eval=FALSE, include=FALSE}
 
 # remove factor ordering (otherwise lm function models polynomials)
 df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
 
+
+pstudent_t(1:10, 3, 0, 10)
+
+
+
+
+
 # Predict well-being from knitting variables
 
 #Model 1: Multi-variate knitting predictors of depression
-m1 <- brm(formula = BDI ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m1.rds")
+m1 <- brm(formula = BDI ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m1knit.rds")
 summary(m1)
 tab_model(m1, file = "m1.html")
 
+prior_summary(m1)
 
 #Model 2: Multi-variate knitting predictors of mindfulness
 m2 <- brm(formula = FMI ~ Freq_knit + Session_L_Knit + how_long_knit, data = df, file = "m2.rds")
