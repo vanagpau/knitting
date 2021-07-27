@@ -32,7 +32,8 @@ library(rstanarm)
 library(tidyverse)
 
 #Set working directory
-setwd("E:/R stuff/knitting") #for home PC
+#setwd("E:/R stuff/knitting") #for old PC
+setwd("C:/Users/paulv/Documents/R/knitting") # new PC
 #setwd("/home/vanagpau/R/knitting") #for laptop
 
 
@@ -106,6 +107,9 @@ df$CrochetQ <- ordered(df$CrochetQ, levels = c("I do NOT crochet." , "I crochet 
 # remove any rows containing NA in key variables
 df <- df[complete.cases(df[disc_var], df[cont_var]), ]
 
+# duplicate BDI scores to preserve as non-standardised form (for effect size modelling)
+df$BDI_ns <- df$BDI
+
 #standardise continuous scale variables
 df$BDI <- scale(df$BDI)
 df$PSS <- scale(df$PSS)
@@ -117,7 +121,7 @@ df$FMI <- scale(df$FMI)
 ```
 
 ## Data visualisation
-```{r, eval = FALSE, include = FALSE}
+```{r}
 
 
 # create mosaic plot to show overlap between knitters and crotcheters
@@ -147,7 +151,7 @@ corrplot::corrplot(c, diag = FALSE, type = "lower", method = "pie")
 ```
 
 # Frequentist modelling
-```{r, eval = FALSE, include=FALSE}
+```{r}
 
 # remove factor ordering (otherwise lm function models polynomials)
 df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
@@ -229,7 +233,7 @@ tab_model(model_LB3, model_LF3, model_LS3, model_LP3)
 ```
 
 # Frequentist modelling - knitters only
-```{r, EVAL = FALSE, include=FALSE}
+```{r}
 
 # remove factor ordering (otherwise lm function models polynomials)
 df[disc_var] <- lapply(df[disc_var], factor, ordered = FALSE)
@@ -548,4 +552,34 @@ summary(m4)
 tab_model(m4, file = "m4.html")
 
           
+```
+
+# Effect size
+```{r}
+
+#plot BDI histogram across all knitters
+plota <- df %>% ggplot(aes(x=BDI_ns)) +  geom_histogram(binwidth = 1) + geom_vline(xintercept = c(10,19,30))
+
+plotb <- df %>% filter(how_long_knit == "More than 3 years." & Freq_knit != "I do NOT knit." & Freq_knit != "I knit once a month." ) %>% ggplot(aes(x=BDI_ns)) +  geom_histogram(binwidth = 1) + geom_vline(xintercept = c(10,19,30))
+
+plotc <- df %>% ggplot(aes(x=BDI_ns)) +  geom_histogram(breaks = c(0,10,19,30,53)) + geom_vline(xintercept = c(10,19,30)) +
+  stat_bin(breaks = c(0,10,19,30,53), geom='text', color='white', aes(label=..count..),
+           position=position_stack(vjust = 0.5)) +
+  annotate("text", x=5, y=3500, label= "No\ndepression", colour = "white", size = 2) +
+  annotate("text", x=14.5, y=3500, label= "Mild or\nmoderate\ndepression", colour = "black", size = 2)+
+  annotate("text", x=24.5, y=3500, label= "Moderate\nor severe\ndepression", colour = "black", size = 2)+
+  annotate("text", x=40, y=3500, label= "Severe depression", colour = "black", size = 2)
+
+plotd <- df %>% filter(how_long_knit == "More than 3 years." & Freq_knit != "I do NOT knit." & Freq_knit != "I knit once a month." ) %>% ggplot(aes(x=BDI_ns)) +  geom_histogram(breaks = c(0,10,19,30,53)) + geom_vline(xintercept = c(10,19,30))+
+  stat_bin(breaks = c(0,10,19,30,53), geom='text', color='white', aes(label=..count..),
+           position=position_stack(vjust = 0.5))+
+  stat_bin(breaks = c(0,10,19,30,53), geom='text', color='white', aes(label=..count..),
+           position=position_stack(vjust = 0.5)) +
+  annotate("text", x=5, y=2750, label= "No\ndepression", colour = "white", size = 2) +
+  annotate("text", x=14.5, y=2750, label= "Mild or\nmoderate\ndepression", colour = "black", size = 2)+
+  annotate("text", x=24.5, y=2750, label= "Moderate\nor severe\ndepression", colour = "black", size = 2)+
+  annotate("text", x=40, y=2750, label= "Severe depression", colour = "black", size = 2)
+
+grid.arrange(plota, plotb, plotc, plotd, ncol = 2, nrow = 2)
+
 ```
